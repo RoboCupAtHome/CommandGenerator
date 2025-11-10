@@ -217,11 +217,7 @@ def generator(
                     # Load a font
                     while True:
                         font = ImageFont.load_default(fontsize)
-
-                        print(draw.textlength("W", font))
-
                         max = int((img.size[0] / (draw.textlength("W", font) + 1)))
-                        print(f'Page:{img.size[0]} W={draw.textlength("W", font)}')
 
                         if len(c) > max:
                             split = [c[i : i + max] for i in range(0, len(c), max)]
@@ -270,6 +266,37 @@ def print_config(
     print(
         f"Categories: \n{list(zip(object_categories_singular,object_categories_plural))}"
     )
+
+
+def createGPSRGenerator(data_dir) -> CommandGenerator:
+    names_file_path = f"{data_dir}/names/names.md"
+    locations_file_path = f"{data_dir}/maps/location_names.md"
+    rooms_file_path = f"{data_dir}/maps/room_names.md"
+    objects_file_path = f"{data_dir}/objects/objects.md"
+
+    names_data = read_data(names_file_path)
+    names = parse_names(names_data)
+
+    locations_data = read_data(locations_file_path)
+    location_names, placement_location_names = parse_locations(locations_data)
+
+    rooms_data = read_data(rooms_file_path)
+    room_names = parse_rooms(rooms_data)
+
+    objects_data = read_data(objects_file_path)
+    object_names, object_categories_plural, object_categories_singular = parse_objects(
+        objects_data
+    )
+    return CommandGenerator(
+        names,
+        location_names,
+        placement_location_names,
+        room_names,
+        object_names,
+        object_categories_plural,
+        object_categories_singular,
+    )
+
 
 
 def main():

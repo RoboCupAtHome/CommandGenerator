@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "robocupathome_generator"
 version = "0.0.0"
 
-dependencies = ["qrcode", "pillow"]
+dependencies = ["qrcode", "pillow", "nicegui", "requests"]
 
 [project.scripts]
 athome-generator = "robocupathome_generator.generator:main"
+athome-generator-gpsr-ui = "robocupathome_generator.ui.gpsr_ui:main"
