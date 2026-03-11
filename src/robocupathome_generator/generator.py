@@ -75,6 +75,7 @@ def parse_objects(data):
 
     parsed_categories = re.findall(r"# Class \s*([\w,\s, \(,\)]+)\s*", data, re.DOTALL)
     parsed_categories = [category.strip() for category in parsed_categories]
+    print(parsed_categories)
     parsed_categories = [
         category.replace("(", "").replace(")", "").split()
         for category in parsed_categories

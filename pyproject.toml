@@ -11,3 +11,7 @@ dependencies = ["qrcode", "pillow", "nicegui", "requests"]
 [project.scripts]
 athome-generator = "robocupathome_generator.generator:main"
 athome-generator-gpsr-ui = "robocupathome_generator.ui.gpsr_ui:main"
+
+
+[tool.uv.extra-build-dependencies]
+robocupathome-generator = ["pyparsing"]

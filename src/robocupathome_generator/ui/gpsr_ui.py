@@ -131,10 +131,12 @@ class GPSR_UI():
 def overview():
     commandlist(gpsrui.commands)
 
+label_size = 90
+
 def taskview():
     with ui.row():
         ui.label('Text size')
-        ui.slider(min=32, max=254, value=128, step=8).props('label-always').on('update:model-value', lambda e: update_label_size(e.args), throttle=0.2).classes('w-128')
+        ui.slider(min=32, max=254, value=label_size, step=8).props('label-always').on('update:model-value', lambda e: update_label_size(e.args), throttle=0.2).classes('w-128')
     tasklist(gpsrui.commands)
 
 @ui.refreshable
@@ -198,6 +200,7 @@ def clickLock():
 
 def update_label_size(e):
     print(f"update label size {e}")
+    label_size = e
     ElementFilter(kind=ui.label).within(marker='important').style(f'font-size: {e}px')
 
 @ui.page('/')
