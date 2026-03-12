@@ -131,7 +131,7 @@ class GPSR_UI():
 def overview():
     commandlist(gpsrui.commands)
 
-label_size = 90
+label_size = 32
 
 def taskview():
     with ui.row():
@@ -186,7 +186,7 @@ def phrasings(commands):
     with ui.tab_panels(tabs2, value='0').classes('w-full h-full'):
         for id, command in enumerate(commands):
             with ui.tab_panel(id).mark('important'):
-                ui.label(command).classes('font-bold').style(f'font-size: 128px')
+                ui.label(command).classes('font-bold').style(f'font-size: {label_size}px')
 
 def clickLock():
     print(f"on click: {gpsrui.generate}")
@@ -200,6 +200,7 @@ def clickLock():
 
 def update_label_size(e):
     print(f"update label size {e}")
+    global label_size
     label_size = e
     ElementFilter(kind=ui.label).within(marker='important').style(f'font-size: {e}px')
 
