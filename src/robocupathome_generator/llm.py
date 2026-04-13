@@ -6,24 +6,33 @@ class SimpleOpenaiAPI:
         self.url = server
         self.key = key
 
-    def chat(self, request: list[str], system: str, temp = 0.9, top_p = 0.95, max_new_tokens = 1000) -> str:
+    def chat(self, request: str, system: str, temp = 0.9, top_p = 0.95, max_new_tokens = 50000) -> str:
         headers = {"Authorization": f"Bearer {self.key}"}
         json = {
-            "max_tokens": max_new_tokens,
+            "max_completion_tokens": max_new_tokens,
             "top_p": top_p,
             "temperature": temp,
+            "reasoning_effort": "none",
+            "reasoning": {"effort": "none"},
+            "enable_thinking": False,
             "messages": [],
+            #"chat_template_kwargs": {
+            #    "enable_thinking": False,
+            #}
         }
 
         json["messages"].append({"role": "system", "content": f"{system}"})
-        for r in request:
-            json["messages"].append({"role": "user", "content": f"{r}"})
+        json["messages"].append({"role": "user", "content": f"{request}"})
 
         reply = requests.post(self.url, headers=headers, json=json)
         if reply.status_code != 200:
             raise Exception(reply.reason)
+        
+        json = reply.json()
 
-        content = reply.json()["choices"][0]["message"]["content"]
+        content = json["choices"][0]["message"]["content"]
+        if json["choices"][0]["finish_reason"] != "stop":
+            print(f"finish reason != stop, is:'{json["choices"][0]["finish_reason"]}'")
         return content
     
     def alternativePhrasing(self, task : str) -> list[str]:
@@ -56,10 +65,10 @@ Your output must be **a single Markdown list** containing **three alternative ph
 
 """
 # * Maintain a natural tone — write like people actually talk.
-        reply = self.chat([task], system)
+
+
+        reply = self.chat(task, system)
         alternatives = []
-        if reply.startswith("<think"):
-            reply = re.sub(r"<think>.*?</think>", "", reply, flags=re.DOTALL)
         for line in reply.splitlines():
             if line == "":
                 continue
@@ -77,16 +86,19 @@ Your output must be **a single Markdown list** containing **three alternative ph
         return alternatives
 
 
-
-
 if __name__ == '__main__':
     _host = "rhenium"
-    _port = "9091"
+    _port = "9090"
     _key = "tiago"
     llm = SimpleOpenaiAPI(f"http://{_host}:{_port}/v1/chat/completions", f"{_key}")
-    task = "please fetch me a coke from the living room table"
-    
-    for task in ["Follow Adel from the bookshelf to the office", "Tell the gesture of the person at the kitchen table to the person at the bed", "Tell me what is the smallest food on the sink"]:
+
+    tasks = [
+        "Find Apple in Kitchen, place it on Drawer", 
+        "Tell the gesture of the person at the kitchen table to the person at the bed", 
+        "Tell me what is the smallest food on the sink"
+    ]
+
+    for task in tasks:
         print(f"Task: '{task}'")
         alternatives = llm.alternativePhrasing(task)
         for a in enumerate(alternatives):

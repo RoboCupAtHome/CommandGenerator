@@ -38,12 +38,12 @@ class GPSR_UI():
         self.llm = SimpleOpenaiAPI(server, key)
 
     async def generateCommand(self, kind = "") -> GPSRCommand:
-        command = self.generator.generate_command_start(cmd_category="")
+        command = self.generator.generate_command_start(cmd_category=kind)
         phrasings = [command]
         return GPSRCommand(command, phrasings, kind)
     
     async def rephraseCommand(self, command: GPSRCommand) -> GPSRCommand:
-        phrasings = await run.io_bound(self.llm.alternativePhrasing, command)
+        phrasings = await run.io_bound(self.llm.alternativePhrasing, command.command)
         return GPSRCommand(command.command, phrasings, command.kind)
     
     async def buttonRegenerate(self, index):
@@ -62,13 +62,14 @@ class GPSR_UI():
             command = await self.rephraseCommand(old)
             self.commands[index] = command
             print(f"\trephrased command: {command}")
+            n.message = "Done"
         except Exception as e:
             n.message = "LLM ERROR"
+            self.commands[index].phrasing = ["LLM ERROR"]
             logger.error(e)
         commandlist.refresh(self.commands)
         n.spinner = False
         self.enable_ui = True
-        n.message = "Done"
         await asyncio.sleep(5)
         n.dismiss()
 
