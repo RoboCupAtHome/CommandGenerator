@@ -30,7 +30,8 @@ class EgpsrCommandGenerator:
             raise Exception("too low")
 
         problems = []
-        problems.append(self._generate_person_task("people"))
+        problems.append(self._generate_person_task("objects"))
+        problems.append(self._generate_person_task("objects"))
         problems.append(self._generate_person_task("objects"))
 
         # 25% - 50% are trash tasks
