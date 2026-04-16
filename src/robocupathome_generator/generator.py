@@ -188,9 +188,9 @@ def main():
     if args.print_config:
         print_config(knowledge)
     elif args.generate:
-        generator = CommandGenerator(knowledge)
+        g = CommandGenerator(knowledge)
         for _ in range(5000):
-            command = generator.generate_command_start(cmd_category="")
+            command = g.generate_command_start(cmd_category="")
             command = command[0].upper() + command[1:]
             print(command)
     else:

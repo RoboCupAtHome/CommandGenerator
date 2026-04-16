@@ -10,7 +10,7 @@ class CommandGenerator:
         self.knowledge = knowledge
 
         # -----------------------------
-        # MAIN COMMAND TEMPLATES
+        #  COMMAND TEMPLATES
         # -----------------------------
         self.templates = {
             "goToLoc": "{goVerb} {toLocPrep} the {loc_room} then {FOLLOWUP:atLoc}",
@@ -37,6 +37,7 @@ class CommandGenerator:
             "followPrsAtLoc": "{followVerb} the {gestPers_posePers} {inRoom_atLoc}",
         }
 
+        # followup TEMPLATES
         self.followup_templates = {
             "findObj": "{findVerb} {art} {obj_singCat} and {FOLLOWUP:foundObj}",
             "findPrs": "{findVerb} the {gestPers_posePers} and {FOLLOWUP:foundPers}",
@@ -53,9 +54,9 @@ class CommandGenerator:
             "takeObj": "{takeVerb} it and {FOLLOWUP:hasObj}",
         }
 
-        # -----------------------------
-        # FOLLOWUP ROUTING TABLES
-        # -----------------------------
+        # ------------------
+        # Possible Followups
+        # ------------------
         self.followup_people = {
             "atLoc": ["findPrs", "meetName"],
             "foundPers": ["talkInfo", "followPrs", "followPrsToRoom", "guidePrsToBeacon"],
@@ -68,7 +69,7 @@ class CommandGenerator:
         }
 
         # -----------------------------
-        # COMMAND GROUPS
+        # COMMAND GROUPS with weigths
         # -----------------------------
         self.person_cmd_list = [
             ("goToLoc", 8),
@@ -99,6 +100,8 @@ class CommandGenerator:
             ("tellCatPropOnPlcmt", 1),
         ]
 
+
+        # =====================================================================
     
         self.verb_dict = {
             "takeVerb": ["take", "get", "grasp", "fetch"],
@@ -185,9 +188,7 @@ class CommandGenerator:
         self.color_clothe_list = [f"{a} {b}" for a, b in itertools.product(self.color_list, self.clothe_list)]
         self.color_clothes_list = [f"{a} {b}" for a, b in itertools.product(self.color_list, self.clothes_list)]
 
-    # ============================================================
-    # MAIN ENTRY
-    # ============================================================
+
     def generate_command_start(self, cmd_category=""):
 
         cmd_list = (
@@ -211,15 +212,12 @@ class CommandGenerator:
         
         return template
 
-    # ============================================================
-    # FOLLOWUP ENGINE
-    # ============================================================
     def _resolve_followups(self, template, cmd_category):
         matches = re.findall(r"\{FOLLOWUP:(\w+)\}", template)
 
         for key in matches:
             cmd = self._sample_followup(key, cmd_category)
-            expanded = self.generate_command_followup(cmd, cmd_category)
+            expanded = self._generate_followup(cmd, cmd_category)
             template = template.replace(f"{{FOLLOWUP:{key}}}", expanded)
 
         return template
@@ -238,10 +236,7 @@ class CommandGenerator:
 
         return choice
 
-    # ============================================================
-    # FOLLOWUP GENERATION
-    # ============================================================
-    def generate_command_followup(self, command, cmd_category=""):
+    def _generate_followup(self, command, cmd_category=""):
 
         if command not in self.followup_templates:
             warnings.warn("followup_templates not covered: " + command)
