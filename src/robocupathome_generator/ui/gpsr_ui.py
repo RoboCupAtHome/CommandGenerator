@@ -242,19 +242,16 @@ parser.add_argument(
 parser.add_argument(
     "--host",
     help="LLM host",
-    default="rhenium"
 )
 
 parser.add_argument(
     "--port",
     help="LLM port",
-    default="9091"
 )
 
 parser.add_argument(
     "-a", "--api-key",
     help="LLM API Key",
-    default="tiago"
 )
 
 parser.add_argument(

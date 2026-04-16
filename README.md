@@ -2,12 +2,21 @@
 
 ## Install
 
-With tool of your choice. e.g. venv and pip
+With Build Frontend of your choice. e.g. [uv](https://docs.astral.sh/uv)
 
-- `python -m venv venv`
-- `source venv/bin/activate`
-- `pip install .`
-- `athome-generator --help`
+```
+# get uv if not installed
+mkdir ~/generator && cd ~/generator
+wget https://github.com/astral-sh/uv/releases/download/0.9.25/uv-x86_64-unknown-linux-gnu.tar.gz
+tar -xvf uv-x86_64-unknown-linux-gnu.tar.gz
+mv uv-x86_64-unknown-linux-gnu/uv .
+
+# install command generator
+uv venv --python 3.12
+source .venv/bin/activate
+uv pip install git+https://github.com/RoboCupAtHome/CommandGenerator
+athome-generator --help
+```
 
 ## Commandline Generator
 
