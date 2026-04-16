@@ -30,12 +30,12 @@ class GPSR_UI():
     generate = True
     commands = []
 
-    def __init__(self, data_dir, server, key):
+    def __init__(self, data_dir, server, key, model):
         self.generator = createGPSRGenerator(data_dir)
         self.llm = SimpleOpenaiAPI(server, key)
 
-    def reconnectLLM(self, server, key):
-        self.llm = SimpleOpenaiAPI(server, key)
+    def reconnectLLM(self, server, key, model):
+        self.llm = SimpleOpenaiAPI(server, key, model)
 
     async def generateCommand(self, kind = "") -> GPSRCommand:
         command = self.generator.generate_command_start(cmd_category=kind)
@@ -66,7 +66,7 @@ class GPSR_UI():
         except Exception as e:
             n.message = "LLM ERROR"
             self.commands[index].phrasing = ["LLM ERROR"]
-            logger.error(e)
+            logging.error(e)
         commandlist.refresh(self.commands)
         n.spinner = False
         self.enable_ui = True
@@ -241,17 +241,22 @@ parser.add_argument(
 
 parser.add_argument(
     "--host",
-    help="LLM host",
+    help="LLM host uses http://{host}:{port}/v1/chat/completions",
 )
 
 parser.add_argument(
     "--port",
-    help="LLM port",
+    help="LLM port uses http://{host}:{port}/v1/chat/completions",
 )
 
 parser.add_argument(
     "-a", "--api-key",
     help="LLM API Key",
+)
+
+parser.add_argument(
+    "-m", "--model",
+    help="LLM model",
 )
 
 parser.add_argument(
@@ -266,14 +271,15 @@ args = parser.parse_args()
 if args.url:
     if args.host or args.port:
         parser.error("Cannot specify --url together with --host or --port")
-else:
+    url = args.url
+elif args.host:
     if not (args.host and args.port):
         parser.error("Either --url or both --host and --port must be specified.")
-
-if args.url:
-    url = args.url
-else:
     url = f"http://{args.host}:{args.port}/v1/chat/completions"
+else:
+    print("neither url nor host/port is set default to api.openai")
+    url = "https://api.openai.com/v1/chat/completions"
+    args.model = "gpt-5"
 
-gpsrui = GPSR_UI(args.data_dir, url, args.api_key)
+gpsrui = GPSR_UI(args.data_dir, url, args.api_key, args.model)
 ui.run(show = False)    

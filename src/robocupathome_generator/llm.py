@@ -2,24 +2,32 @@ import requests
 import re
 
 class SimpleOpenaiAPI:
-    def __init__(self, server, key):
+    def __init__(self, server, key, model = None):
+        self.model = model
         self.url = server
         self.key = key
 
     def chat(self, request: str, system: str, temp = 0.9, top_p = 0.95, max_new_tokens = 50000) -> str:
-        headers = {"Authorization": f"Bearer {self.key}"}
+        headers = {
+            "Authorization": f"Bearer {self.key}", 
+            "Content-Type": "application/json"
+        }
         json = {
             "max_completion_tokens": max_new_tokens,
             "top_p": top_p,
             "temperature": temp,
-            "reasoning_effort": "none",
-            "reasoning": {"effort": "none"},
-            "enable_thinking": False,
             "messages": [],
             #"chat_template_kwargs": {
             #    "enable_thinking": False,
             #}
         }
+        if self.model is not None:
+            json["model"] = self.model
+            json["reasoning_effort"] = "low"
+        else:
+            json["reasoning"] = {"effort": "none"}
+            json["enable_thinking"] = False
+            json["reasoning_effort"] = "none"
 
         json["messages"].append({"role": "system", "content": f"{system}"})
         json["messages"].append({"role": "user", "content": f"{request}"})
