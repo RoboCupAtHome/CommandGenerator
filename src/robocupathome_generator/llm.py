@@ -7,14 +7,13 @@ class SimpleOpenaiAPI:
         self.url = server
         self.key = key
 
-    def chat(self, request: str, system: str, temp = 0.9, top_p = 0.95, max_new_tokens = 50000) -> str:
+    def chat(self, request: str, system: str, temp = 0.9, max_new_tokens = 50000) -> str:
         headers = {
             "Authorization": f"Bearer {self.key}", 
             "Content-Type": "application/json"
         }
         json = {
             "max_completion_tokens": max_new_tokens,
-            "top_p": top_p,
             "temperature": temp,
             "messages": [],
             #"chat_template_kwargs": {
@@ -24,17 +23,19 @@ class SimpleOpenaiAPI:
         if self.model is not None:
             json["model"] = self.model
             json["reasoning_effort"] = "low"
+            json["temperature"] = 1
         else:
             json["reasoning"] = {"effort": "none"}
             json["enable_thinking"] = False
             json["reasoning_effort"] = "none"
+            json["chat_template_kwargs"] = {"enable_thinking": False,}
 
         json["messages"].append({"role": "system", "content": f"{system}"})
         json["messages"].append({"role": "user", "content": f"{request}"})
 
         reply = requests.post(self.url, headers=headers, json=json)
         if reply.status_code != 200:
-            raise Exception(reply.reason)
+            raise Exception(f"{reply.reason}: {reply.text}")
         
         json = reply.json()
 

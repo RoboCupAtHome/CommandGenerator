@@ -8,13 +8,19 @@ import random
 import logging
 import os.path
 
-logging.basicConfig(filename=os.path.expanduser("~/gpsr-ui.log"),
+
+
+logging.basicConfig(
+    filename=os.path.expanduser("~/gpsr-ui.log"),
     filemode='a',
     format='%(asctime)s %(name)s %(levelname)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.ERROR)
+    level=logging.ERROR
+)
+
 logger = logging.getLogger('GPSR-UI')
 logger.setLevel(logging.INFO)
+
 
 from dataclasses import dataclass
 @dataclass
@@ -32,7 +38,7 @@ class GPSR_UI():
 
     def __init__(self, data_dir, server, key, model):
         self.generator = createGPSRGenerator(data_dir)
-        self.llm = SimpleOpenaiAPI(server, key)
+        self.llm = SimpleOpenaiAPI(server, key, model)
 
     def reconnectLLM(self, server, key, model):
         self.llm = SimpleOpenaiAPI(server, key, model)
@@ -66,7 +72,7 @@ class GPSR_UI():
         except Exception as e:
             n.message = "LLM ERROR"
             self.commands[index].phrasing = ["LLM ERROR"]
-            logging.error(e)
+            print(e)
         commandlist.refresh(self.commands)
         n.spinner = False
         self.enable_ui = True
@@ -85,7 +91,7 @@ class GPSR_UI():
                 print(f"\trephrased {i+1}/{len(self.commands)} commands")
             except Exception as e:
                 n.message = "LLM ERROR"
-                logger.error(e)
+                print(e)
         commandlist.refresh(self.commands)
         n.spinner = False
         self.enable_ui = True
@@ -109,8 +115,8 @@ class GPSR_UI():
                 self.commands += [command]
                 print(f"\tgenerated {i+1}/{self.number_commands} command: '{command.command}'")
             except Exception as e:
-                n.message = "LLM ERROR"
-                logger.error(e)
+                n.message = "ERROR"
+                print(e)
 
         random.shuffle(self.commands)
         commandlist.refresh(self.commands)
@@ -192,6 +198,11 @@ def phrasings(commands):
 def clickLock():
     print(f"on click: {gpsrui.generate}")
     if gpsrui.generate:
+        logger.info(f"TASKS LOCKED")
+        for i, c in enumerate(gpsrui.commands):
+            logger.info(f"  Task {i}: ({c.kind}) {c.command}")
+            for n,p in enumerate(c.phrasings):
+                logger.info(f"      Task {i} Phrasing {n}: {p}")
         gpsrui.generate = False
         ui.navigate.to('/task')
     else:
